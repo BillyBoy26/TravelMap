@@ -1,8 +1,15 @@
 package com.example.benjamin.travelmap;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.os.Bundle;
@@ -13,10 +20,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.benjamin.travelmap.data.PhotoData;
-import com.example.benjamin.travelmap.markers.PhotoMarker;
 import com.example.benjamin.travelmap.utils.GpsUtils;
 import com.example.benjamin.travelmap.utils.PermissionUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -183,8 +193,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap = map;
         googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-        View photoMarkerView = getLayoutInflater().inflate(R.layout.photo_marker, null);
-        googleMap.setInfoWindowAdapter(new PhotoMarker(photoMarkerView));
+//        View photoMarkerView = getLayoutInflater().inflate(R.layout.photo_marker_card, null);
+//        googleMap.setInfoWindowAdapter(new PhotoMarker(photoMarkerView));
         updateLocationUI();
         getDeviceLocation();
         drawPhotoMarkers();
@@ -193,14 +203,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    /**
+     * http://waleedsarwar.com/blog/create-a-custom-bitmap-marker-with-android-map-api-v2/
+     */
+    private Bitmap getMarkerBitmapFromView(View view) {
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.buildDrawingCache();
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        Drawable drawable = view.getBackground();
+        if (drawable != null) {
+            drawable.draw(canvas);
+        }
+        view.draw(canvas);
+        return returnedBitmap;
+    }
+
     private void drawPhotoMarkers() {
         for (PhotoData photo : photos) {
             Marker marker = googleMap.addMarker(new MarkerOptions().position(photo.getPhotoPosition()));
             marker.setTag(photo);
-            //TODO
-            //marker.setIcon(BitmapDescriptorFactory.fromResource(R.id.photo_marker));
+            View photo_marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.photo_marker_card, null);
+            buildPhotoMarkerView(photo,photo_marker);
+            marker.setIcon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(photo_marker)));
         }
     }
+
+    private void buildPhotoMarkerView(PhotoData photoData, View photo_marker) {
+        TextView lblTitle = (TextView) photo_marker.findViewById(R.id.marker_title);
+        lblTitle.setText(photoData.getFileName());
+        ImageView img = (ImageView) photo_marker.findViewById(R.id.marker_image);
+        img.setImageBitmap(BitmapFactory.decodeFile(photoData.getAbsolutePath()));
+    }
+
 
 
     @Override
