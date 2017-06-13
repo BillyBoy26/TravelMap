@@ -4,12 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.os.Bundle;
@@ -26,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.benjamin.travelmap.data.PhotoData;
+import com.example.benjamin.travelmap.utils.BitmapUtils;
 import com.example.benjamin.travelmap.utils.GpsUtils;
 import com.example.benjamin.travelmap.utils.PermissionUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -198,29 +194,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateLocationUI();
         getDeviceLocation();
         drawPhotoMarkers();
-
-
-
     }
 
-    /**
-     * http://waleedsarwar.com/blog/create-a-custom-bitmap-marker-with-android-map-api-v2/
-     */
-    private Bitmap getMarkerBitmapFromView(View view) {
-        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-        view.buildDrawingCache();
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(returnedBitmap);
-        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        Drawable drawable = view.getBackground();
-        if (drawable != null) {
-            drawable.draw(canvas);
-        }
-        view.draw(canvas);
-        return returnedBitmap;
-    }
+
 
     private void drawPhotoMarkers() {
         for (PhotoData photo : photos) {
@@ -228,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             marker.setTag(photo);
             View photo_marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.photo_marker_card, null);
             buildPhotoMarkerView(photo,photo_marker);
-            marker.setIcon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(photo_marker)));
+            marker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapUtils.getMarkerBitmapFromView(photo_marker)));
         }
     }
 
