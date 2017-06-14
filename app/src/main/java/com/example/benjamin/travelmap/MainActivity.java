@@ -1,10 +1,8 @@
 package com.example.benjamin.travelmap;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.os.Bundle;
@@ -15,13 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.benjamin.travelmap.data.PhotoData;
-import com.example.benjamin.travelmap.utils.BitmapUtils;
 import com.example.benjamin.travelmap.utils.GpsUtils;
 import com.example.benjamin.travelmap.utils.PermissionUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -32,20 +25,17 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleMap.OnCameraIdleListener,
         GoogleApiClient.OnConnectionFailedListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -60,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean locationPermissionGranted;
     private CameraPosition cameraPosition;
     private List<PhotoData> photos = new ArrayList<>();
-    private List<Marker> photoMarkers = new ArrayList<>();
+    private ClusterManager<PhotoData> clusterManager;
 
 
     @Override
@@ -189,9 +179,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
+        clusterManager = new ClusterManager<>(this, googleMap);
+        clusterManager.setRenderer(new PhotoClusterManager(this,map,clusterManager,getLayoutInflater()));
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.setOnCameraIdleListener(this);
-
+        googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                searchPhotosToDraw();
+                clusterManager.onCameraIdle();
+            }
+        });
+        googleMap.setOnMarkerClickListener(clusterManager);
+        googleMap.setOnInfoWindowClickListener(clusterManager);
+        clusterManager.cluster();
 //        View photoMarkerView = getLayoutInflater().inflate(R.layout.photo_marker_card, null);
 //        googleMap.setInfoWindowAdapter(new PhotoMarker(photoMarkerView));
         updateLocationUI();
@@ -202,8 +202,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //TODO quand plein de photo, faire pleins de petites photos dans la zone ?
     //https://developers.google.com/maps/documentation/android-api/utility/marker-clustering?hl=fr
-    private void drawPhotoMarkers() {
-        cleanPhotoMarker();
+    private void searchPhotosToDraw() {
         List<PhotoData> photosToDraw = new ArrayList<>();
         LatLngBounds currentBounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
         for (PhotoData photo : photos) {
@@ -213,32 +212,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
         for (PhotoData photo : photosToDraw) {
-            View photo_marker = buildPhotoMarkerView(photo);
-            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(
-                    BitmapUtils.getMarkerBitmapFromView(photo_marker));
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(photo.getPhotoPosition()).icon(bitmapDescriptor));
-            marker.setTag(photo);
-
-            photoMarkers.add(marker);
+            clusterManager.addItem(photo);
         }
     }
-
-    private void cleanPhotoMarker() {
-        for (Marker marker : photoMarkers) {
-            marker.remove();
-        }
-        photoMarkers.clear();
-    }
-
-    private View buildPhotoMarkerView(PhotoData photoData) {
-        View photo_marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.photo_marker_card, null);
-        TextView lblTitle = (TextView) photo_marker.findViewById(R.id.marker_title);
-        lblTitle.setText(photoData.getFileName());
-        ImageView img = (ImageView) photo_marker.findViewById(R.id.marker_image);
-        img.setImageBitmap(BitmapFactory.decodeFile(photoData.getAbsolutePath()));
-        return photo_marker;
-    }
-
 
 
     @Override
@@ -307,11 +283,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             outState.putParcelable(KEY_LOCATION, lastLocation);
         }
         super.onSaveInstanceState(outState);
-    }
-
-
-    @Override
-    public void onCameraIdle() {
-        drawPhotoMarkers();
     }
 }
