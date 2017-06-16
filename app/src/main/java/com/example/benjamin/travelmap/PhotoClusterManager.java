@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.benjamin.travelmap.data.PhotoData;
 import com.example.benjamin.travelmap.utils.BitmapUtils;
@@ -22,6 +21,7 @@ import java.util.List;
 
 public class PhotoClusterManager extends DefaultClusterRenderer<PhotoData> {
 
+    public static final int MAX_IMAGES = 2;
     private final LayoutInflater layoutInflater;
     private List<ImageView> imageViews = new ArrayList<>();
     private final View clusterView;
@@ -43,11 +43,15 @@ public class PhotoClusterManager extends DefaultClusterRenderer<PhotoData> {
         markerOptions.icon(bitmapDescriptor);
     }
 
+
+    /**
+     * https://tympanus.net/Development/FolderPreviewIdeas/
+     */
     @Override
     protected void onBeforeClusterRendered(Cluster<PhotoData> photos, MarkerOptions markerOptions) {
         int cpt = 0;
         for (PhotoData photoData : photos.getItems()) {
-            if (cpt > 2) {
+            if (cpt == MAX_IMAGES) {
                 break;
             }
             ImageView imageView = imageViews.get(cpt);
@@ -67,8 +71,8 @@ public class PhotoClusterManager extends DefaultClusterRenderer<PhotoData> {
 
     private View buildPhotoMarkerView(PhotoData photoData) {
         View photo_marker = layoutInflater.inflate(R.layout.photo_marker_card, null);
-        TextView lblTitle = (TextView) photo_marker.findViewById(R.id.marker_title);
-        lblTitle.setText(photoData.getFileName());
+//        TextView lblTitle = (TextView) photo_marker.findViewById(R.id.marker_title);
+//        lblTitle.setText(photoData.getFileName());
         ImageView img = (ImageView) photo_marker.findViewById(R.id.marker_image);
         img.setImageBitmap(BitmapFactory.decodeFile(photoData.getAbsolutePath()));
         return photo_marker;

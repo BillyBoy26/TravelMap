@@ -3,7 +3,6 @@ package com.example.benjamin.travelmap.markers;
 import android.graphics.BitmapFactory;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.benjamin.travelmap.R;
 import com.example.benjamin.travelmap.data.PhotoData;
@@ -28,8 +27,8 @@ public class PhotoMarker implements GoogleMap.InfoWindowAdapter {
     }
 
     private View buildPhotoMarkerView(PhotoData photoData) {
-        TextView lblTitle = (TextView) infoWindow.findViewById(R.id.marker_title);
-        lblTitle.setText(photoData.getFileName());
+//        TextView lblTitle = (TextView) infoWindow.findViewById(R.id.marker_title);
+//        lblTitle.setText(photoData.getFileName());
         ImageView img = (ImageView) infoWindow.findViewById(R.id.marker_image);
         img.setImageBitmap(BitmapFactory.decodeFile(photoData.getAbsolutePath()));
         return infoWindow;

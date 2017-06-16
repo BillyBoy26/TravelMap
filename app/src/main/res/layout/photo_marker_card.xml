@@ -24,15 +24,15 @@
             android:scaleType="centerCrop"
             android:id="@+id/marker_image"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:ellipsize="end"
-            android:layout_margin="10dp"
-            android:text="cc"
-            android:id="@+id/marker_title"
-            android:layout_gravity="center_vertical"/>
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="15sp"-->
+            <!--android:ellipsize="end"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:text="cc"-->
+            <!--android:id="@+id/marker_title"-->
+            <!--android:layout_gravity="center_vertical"/>-->
 
     </LinearLayout>
 </android.support.v7.widget.CardView>

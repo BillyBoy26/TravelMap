@@ -206,6 +206,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<PhotoData> photosToDraw = new ArrayList<>();
         LatLngBounds currentBounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
         for (PhotoData photo : photos) {
+            if (photosToDraw.size() > 50) {
+                break;
+            }
             if (currentBounds.contains(photo.getPhotoPosition())) {
                 photosToDraw.add(photo);
             }
