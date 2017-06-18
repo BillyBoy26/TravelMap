@@ -1,24 +1,26 @@
 package com.example.benjamin.travelmap;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.FrameLayout;
 
 import com.example.benjamin.travelmap.data.PhotoData;
 
 import java.util.List;
 
-public class PhotoList extends AppCompatActivity {
+public class PhotoList extends DrawerActivity {
 
     public static final String PHOTO_KEY = "PHOTO_KEY";
 
     private RecyclerView recyclerView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo_list);
+
+        FrameLayout contentFrameLayout = (FrameLayout) findViewById(R.id.content_frame); //Remember this is the FrameLayout area within your activity_main.xml
+        getLayoutInflater().inflate(R.layout.activity_photo_list, contentFrameLayout);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this,2));
