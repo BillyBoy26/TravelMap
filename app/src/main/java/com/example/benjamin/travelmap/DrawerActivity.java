@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    protected NavigationView navigationView;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +32,7 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -46,7 +48,6 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
                 startActivity(new Intent(this, PhotoList.class).putParcelableArrayListExtra(PhotoList.PHOTO_KEY, getPhotos()));
                 break;
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
