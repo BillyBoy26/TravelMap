@@ -34,7 +34,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBprlifOvcW1k_0zZwUXQ1cDWSuossgYQk"/>
 
-
+        <activity android:name=".PhotoList"></activity>
     </application>
 
 </manifest>

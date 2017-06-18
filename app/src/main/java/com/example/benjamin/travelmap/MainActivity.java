@@ -1,6 +1,7 @@
 package com.example.benjamin.travelmap;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -12,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap googleMap;
     private boolean locationPermissionGranted;
     private CameraPosition cameraPosition;
-    private List<PhotoData> photos = new ArrayList<>();
+    private ArrayList<PhotoData> photos = new ArrayList<>();
     private ClusterManager<PhotoData> clusterManager;
 
 
@@ -66,11 +68,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,toolbar, 0, 0);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
         googleMap = null;
@@ -216,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    //TODO quand plein de photo, faire pleins de petites photos dans la zone ?
     //https://developers.google.com/maps/documentation/android-api/utility/marker-clustering?hl=fr
     private void searchPhotosToDraw() {
         List<PhotoData> photosToDraw = new ArrayList<>();
@@ -306,6 +309,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
+
+
+        switch (item.getItemId()) {
+            case R.id.nav_gallery :
+                startActivity(new Intent(this, PhotoList.class).putParcelableArrayListExtra(PhotoList.PHOTO_KEY, photos));
+                break;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

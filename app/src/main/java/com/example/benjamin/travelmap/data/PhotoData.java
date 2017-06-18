@@ -1,9 +1,14 @@
 package com.example.benjamin.travelmap.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-public class PhotoData implements ClusterItem {
+import java.io.Serializable;
+
+public class PhotoData implements ClusterItem,Serializable,Parcelable {
 
 
     private final String absolutePath;
@@ -15,6 +20,24 @@ public class PhotoData implements ClusterItem {
         this.fileName = fileName;
         this.photoPosition = photoPosition;
     }
+
+    protected PhotoData(Parcel in) {
+        absolutePath = in.readString();
+        fileName = in.readString();
+        photoPosition = in.readParcelable(LatLng.class.getClassLoader());
+    }
+
+    public static final Creator<PhotoData> CREATOR = new Creator<PhotoData>() {
+        @Override
+        public PhotoData createFromParcel(Parcel in) {
+            return new PhotoData(in);
+        }
+
+        @Override
+        public PhotoData[] newArray(int size) {
+            return new PhotoData[size];
+        }
+    };
 
     public String getAbsolutePath() {
         return absolutePath;
@@ -47,5 +70,17 @@ public class PhotoData implements ClusterItem {
     @Override
     public int hashCode() {
         return absolutePath.hashCode();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(absolutePath);
+        dest.writeString(fileName);
+        dest.writeParcelable(photoPosition, flags);
     }
 }
