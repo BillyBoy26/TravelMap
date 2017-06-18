@@ -39,6 +39,9 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
 
 
         switch (item.getItemId()) {
+            case R.id.nav_map :
+                startActivity(new Intent(this, MainActivity.class));
+                break;
             case R.id.nav_gallery :
                 startActivity(new Intent(this, PhotoList.class).putParcelableArrayListExtra(PhotoList.PHOTO_KEY, getPhotos()));
                 break;
